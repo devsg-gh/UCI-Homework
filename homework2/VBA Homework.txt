@@ -1,0 +1,113 @@
+Sub homeWorkRangeWorking()
+
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+Application.DisplayStatusBar = True
+
+For Each ws In Worksheets
+Dim WorksheetName As String
+WorksheetName = ws.Name
+
+
+Dim lowValue As Double
+Dim highValue As Double
+Dim diffValue As Double
+Dim I As Long
+Dim J As Long
+Dim P As Long
+Dim perValue As Double
+Dim totalCount As Variant
+Dim uniqueCount As Variant
+Dim rngMaxMin As Range
+Dim minVal As Double
+Dim maxVal As Double
+Dim rngHighTot As Range
+Dim highVal As Double
+
+'intitate the value of sumCount (to calcuate sum of each ticker value)
+sumCount = 0
+
+'total count of cells in column A
+totalCount = ws.Application.WorksheetFunction.CountA(Columns(1))
+
+'total count of unique cells in column L
+Range(ws.Cells(1, 1), ws.Cells(totalCount, 1)).AdvancedFilter Action:=xlFilterCopy, CopyToRange:=ws.Range("L1"), Unique:=True
+ws.Columns(12).Copy Destination:=ws.Columns(18)
+
+'total count of cells in column L
+uniqueCount = ws.Application.WorksheetFunction.CountA(Columns(12))
+
+ws.Cells(1, 15) = "Total Stock Volume"
+ws.Cells(1, 13) = "Yearly Change"
+ws.Cells(1, 14) = "Percent Change"
+ws.Cells(2, 19) = "Greatest % Increase"
+ws.Cells(3, 19) = "Greatest % decrease"
+ws.Cells(4, 19) = "Greatest Total Volume"
+ws.Cells(1, 20) = "Ticker"
+ws.Cells(1, 21) = "Value"
+ws.Columns("L:U").EntireColumn.AutoFit
+
+
+
+
+I = 2
+       'Iterating through each row to do the manipulations
+       For J = 2 To totalCount
+           If ws.Cells(J + 1, 1).Value <> ws.Cells(J, 1).Value Then
+               sumCount = sumCount + ws.Cells(J, 7).Value
+               ws.Cells(I, 15).Value = sumCount                       'Total Volume
+
+               sumCount = 0
+               I = I + 1
+             Else
+               sumCount = sumCount + ws.Cells(J, 7).Value
+
+           End If
+           Next J
+
+
+
+For P = 2 To uniqueCount
+
+                  lowValue = Application.VLookup(ws.Cells(P, 12), ws.Range("A:C"), 3, 0)
+                  ws.Cells(P, 16) = lowValue
+                  highValue = Application.VLookup(ws.Cells(P, 12), ws.Range("A:F"), 6)
+                  ws.Cells(P, 17) = highValue
+                  diffValue = ws.Cells(P, 17).Value - ws.Cells(P, 16).Value
+                  ws.Cells(P, 13) = diffValue
+                  ws.Cells(P, 13).NumberFormat = "##0.##"
+
+             On Error Resume Next
+            perValue = ws.Cells(P, 13).Value / ws.Cells(P, 16).Value
+            ws.Cells(P, 14) = perValue
+            ws.Cells(P, 14).NumberFormat = "0.00%"
+
+            If ws.Cells(P, 13).Value < 0 Then
+                ws.Cells(P, 13).Interior.ColorIndex = 3
+            Else
+                ws.Cells(P, 13).Interior.ColorIndex = 4
+
+            End If
+            Next P
+
+ 
+
+            Set rngMaxMin = ws.Range(ws.Cells(2, 14), ws.Cells(uniqueCount, 14))
+            minVal = Application.WorksheetFunction.Min(rngMaxMin)
+            ws.Cells(3, 21) = minVal
+            ws.Cells(3, 21).NumberFormat = "0.00%"
+            maxVal = Application.WorksheetFunction.Max(rngMaxMin)
+            ws.Cells(2, 21) = maxVal
+            ws.Cells(2, 21).NumberFormat = "0.00%"
+            Set rngHighTot = ws.Range(ws.Cells(2, 15), ws.Cells(uniqueCount, 15))
+            highVal = Application.WorksheetFunction.Max(rngHighTot)
+            ws.Cells(4, 21) = highVal
+            ws.Cells(2, 20) = Application.VLookup(ws.Cells(2, 21), ws.Range("N:R"), 5, 0)
+            ws.Cells(3, 20) = Application.VLookup(ws.Cells(3, 21), ws.Range("N:R"), 5, 0)
+            ws.Cells(4, 20) = Application.VLookup(ws.Cells(4, 21), ws.Range("O:R"), 5, 0)
+            ws.Columns("P:R").Hidden = True
+            
+            Next ws
+
+        
+    End Sub
