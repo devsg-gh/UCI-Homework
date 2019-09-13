@@ -39,6 +39,18 @@ with open(csvpath) as csvfile:
     print(f'Average  Change: ${changeavg}')
     print(f'Greatest Increase in Profits: {ind_val[max_int]} (${maxval})')
     print(f'Greatest Decrease in Profits: {ind_val[min_int]} (${minval})')
+    #export the output to a new text file
+    import sys
+    file = open('output.txt', 'w')
+    sys.stdout = file
+    print("Financial Analysis")
+    print("----------------------------")
+    print(f'Total Months: {n}')
+    print(f'Total: ${total}')
+    print(f'Average  Change: ${changeavg}')
+    print(f'Greatest Increase in Profits: {ind_val[max_int]} (${maxval})')
+    print(f'Greatest Decrease in Profits: {ind_val[min_int]} (${minval})')
+    file.close()
    
 
 
